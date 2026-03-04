@@ -1,0 +1,19 @@
+node_modules/
+*.log
+.env
+.env.*
+*.pem
+*.key
+
+# Chrome extension local data
+*.crx
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/

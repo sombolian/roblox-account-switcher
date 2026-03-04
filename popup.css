@@ -1,0 +1,725 @@
+/* ═══════════════════════════════════════════════════
+   Roblox Account Switcher — Premium Design System
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* ── Backgrounds ───────────────────────────── */
+  --bg: #08080f;
+  --bg-elevated: #0e0e1a;
+
+  /* ── Surfaces (glass) ──────────────────────── */
+  --surface: rgba(255, 255, 255, 0.035);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --surface-active: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-border-hover: rgba(255, 255, 255, 0.14);
+
+  /* ── Text ──────────────────────────────────── */
+  --text: #ededf5;
+  --text-secondary: #8b8ba8;
+  --text-tertiary: #525270;
+
+  /* ── Accent (blue → purple gradient) ───────── */
+  --accent-1: #3b82f6;
+  --accent-2: #8b5cf6;
+  --accent-mid: #6366f1;
+  --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --accent-glow: rgba(99, 102, 241, 0.12);
+  --accent-glow-strong: rgba(99, 102, 241, 0.25);
+
+  /* ── Semantic ──────────────────────────────── */
+  --success: #22c55e;
+  --success-soft: rgba(34, 197, 94, 0.12);
+  --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.10);
+  --danger-hover: #f87171;
+
+  /* ── Radii ─────────────────────────────────── */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* ── Easing curves ─────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ── Reset ─────────────────────────────────────── */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 380px;
+  min-height: 200px;
+  max-height: 560px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  max-height: 560px;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Animated Gradient Bar
+   ═══════════════════════════════════════════════════ */
+
+.gradient-bar {
+  height: 2px;
+  flex-shrink: 0;
+  background: linear-gradient(
+    90deg,
+    #3b82f6,
+    #6366f1,
+    #8b5cf6,
+    #a855f7,
+    #8b5cf6,
+    #6366f1,
+    #3b82f6
+  );
+  background-size: 200% 100%;
+  animation: gradientFlow 4s linear infinite;
+}
+
+@keyframes gradientFlow {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Header
+   ═══════════════════════════════════════════════════ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 14px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Fading divider line */
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s var(--ease-out);
+}
+
+.logo-wrap:hover {
+  background: var(--accent-glow-strong);
+}
+
+.header h1 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--text) 30%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+
+/* ── Add Button ──────────────────────────────── */
+
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 11px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 550;
+  font-family: inherit;
+  transition: all 0.2s var(--ease-out);
+  user-select: none;
+}
+
+.btn-add:hover {
+  background: var(--accent-glow);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--text);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.08);
+}
+
+.btn-add:active {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
+}
+
+.btn-add:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-add .spinner {
+  width: 14px;
+  height: 14px;
+  border-width: 1.5px;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Account List
+   ═══════════════════════════════════════════════════ */
+
+.account-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px;
+}
+
+/* Thin scrollbar */
+.account-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.account-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.account-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.account-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Account Card
+   ═══════════════════════════════════════════════════ */
+
+.account-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  position: relative;
+  border: 1px solid transparent;
+  margin-bottom: 2px;
+}
+
+.account-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--glass-border);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.account-card:active {
+  transform: translateY(0);
+  transition-duration: 0.08s;
+}
+
+
+/* ── Active Card ─────────────────────────────── */
+
+.account-card.active {
+  background: var(--accent-glow);
+  border-color: rgba(99, 102, 241, 0.18);
+}
+
+/* Gradient accent bar on left edge */
+.account-card.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent-gradient);
+}
+
+.account-card.active:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+
+/* ── Card Animations ─────────────────────────── */
+
+/* Staggered entrance on popup open */
+.account-card.entering {
+  animation: cardEnter 0.45s var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+
+/* Slide-out on delete */
+.account-card.removing {
+  animation: cardRemove 0.3s var(--ease-smooth) forwards;
+  pointer-events: none;
+}
+
+@keyframes cardRemove {
+  to {
+    opacity: 0;
+    transform: translateX(40px) scale(0.95);
+  }
+}
+
+/* Pulse on switch */
+.account-card.pulse {
+  animation: cardPulse 0.6s var(--ease-out);
+}
+
+@keyframes cardPulse {
+  0%  { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
+  100% { box-shadow: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Avatar
+   ═══════════════════════════════════════════════════ */
+
+.account-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--surface-active);
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--accent-1);
+  position: relative;
+  transition: all 0.2s var(--ease-out);
+}
+
+/* Gradient ring for active avatar (mask compositing trick) */
+.account-card.active .account-avatar {
+  overflow: visible;
+}
+
+.account-card.active .account-avatar::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 2px;
+  z-index: -1;
+}
+
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Account Info
+   ═══════════════════════════════════════════════════ */
+
+.account-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-name {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.account-display {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Badge
+   ═══════════════════════════════════════════════════ */
+
+.account-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  background: var(--success-soft);
+  color: var(--success);
+  flex-shrink: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Account Actions (delete button, visible on hover)
+   ═══════════════════════════════════════════════════ */
+
+.account-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s var(--ease-smooth);
+  flex-shrink: 0;
+}
+
+.account-card:hover .account-actions {
+  opacity: 1;
+}
+
+/* Hide actions when active badge is showing */
+.account-card.active:hover .account-actions {
+  opacity: 1;
+}
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s var(--ease-out);
+}
+
+.btn-icon:hover {
+  background: var(--surface-active);
+  color: var(--text-secondary);
+}
+
+.btn-icon.btn-danger:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Loading States
+   ═══════════════════════════════════════════════════ */
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--accent-1);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.account-card.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Shimmer overlay while switching */
+.account-card.loading .account-avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 102, 241, 0.2),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Empty State
+   ═══════════════════════════════════════════════════ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  flex: 1;
+  animation: fadeIn 0.5s var(--ease-out);
+}
+
+.empty-state.hidden {
+  display: none;
+}
+
+.empty-icon {
+  margin-bottom: 16px;
+  animation: emptyFloat 3s ease-in-out infinite;
+}
+
+@keyframes emptyFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+.empty-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.empty-desc {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.empty-desc strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Toast Notification
+   ═══════════════════════════════════════════════════ */
+
+.toast {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  font-weight: 500;
+  z-index: 100;
+  animation: toastIn 0.35s var(--ease-spring);
+  white-space: nowrap;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.toast.hidden {
+  display: none;
+}
+
+.toast.success {
+  background: rgba(34, 197, 94, 0.14);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.18);
+}
+
+.toast.error {
+  background: rgba(239, 68, 68, 0.14);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+}
+
+.toast-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toast-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.toast-msg {
+  line-height: 1;
+}
+
+/* Toast exit animation */
+.toast.leaving {
+  animation: toastOut 0.25s var(--ease-smooth) forwards;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateX(-50%) translateY(12px) scale(0.95);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-50%) translateY(-2px) scale(1.01);
+  }
+  to {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toastOut {
+  to {
+    transform: translateX(-50%) translateY(8px) scale(0.96);
+    opacity: 0;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Confirm Delete Overlay
+   ═══════════════════════════════════════════════════ */
+
+.confirm-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(239, 68, 68, 0.06);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: overlayIn 0.2s var(--ease-out);
+  z-index: 10;
+}
+
+.confirm-overlay span {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.confirm-overlay .btn {
+  padding: 5px 14px;
+  font-size: 11.5px;
+  font-weight: 550;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 0.15s var(--ease-out);
+}
+
+.confirm-overlay .btn-danger-solid {
+  background: var(--danger);
+  color: #fff;
+}
+
+.confirm-overlay .btn-danger-solid:hover {
+  background: var(--danger-hover);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.2);
+}
+
+.confirm-overlay .btn-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-border);
+}
+
+.confirm-overlay .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Utility
+   ═══════════════════════════════════════════════════ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
