@@ -3,6 +3,7 @@ const STORAGE_KEY = "roblox_accounts";
 
 let accounts = [];
 let activeAccountId = null;
+let isLoggedIn = false;
 let adding = false;
 let isInitialRender = true;
 
@@ -11,8 +12,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadAccounts();
   await detectActiveAccount();
   render();
+  updateLogoutBtn();
   isInitialRender = false;
   bindEvents();
+
+  // Reflect background validation results (isValid, fresh avatars) in real-time
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes[STORAGE_KEY]) {
+      accounts = changes[STORAGE_KEY].newValue || [];
+      render();
+    }
+  });
+
+  // Re-detect whenever the Roblox auth cookie changes while popup is open
+  chrome.cookies.onChanged.addListener((changeInfo) => {
+    if (
+      changeInfo.cookie.name === ".ROBLOSECURITY" &&
+      changeInfo.cookie.domain.includes("roblox")
+    ) {
+      detectActiveAccount().then(() => {
+        render();
+        updateLogoutBtn();
+      });
+    }
+  });
 });
 
 // ── Storage ───────────────────────────────────────
@@ -28,12 +51,42 @@ async function saveAccounts() {
 // ── Detect which account is currently active ──────
 async function detectActiveAccount() {
   const { cookie } = await sendMessage({ action: "getCurrentCookie" });
+  isLoggedIn = !!cookie;
   if (!cookie) {
     activeAccountId = null;
     return;
   }
-  const match = accounts.find((a) => a.cookie === cookie);
-  activeAccountId = match ? match.id : null;
+  // Compare by userId (accurate even when Roblox silently rotates the cookie string)
+  try {
+    const resp = await fetch("https://users.roblox.com/v1/users/authenticated", {
+      credentials: "include"
+    });
+    if (!resp.ok) {
+      // Cookie exists but Roblox rejects it (invalidated/expired)
+      activeAccountId = null;
+      return;
+    }
+    const data = await resp.json();
+    if (data.id) {
+      const match = accounts.find((a) => a.userId === data.id);
+      if (match) {
+        activeAccountId = match.id;
+        // Auto-update stale cookie if Roblox rotated it
+        if (match.cookie !== cookie) {
+          match.cookie = cookie;
+          await saveAccounts();
+        }
+      } else {
+        activeAccountId = null;
+      }
+    } else {
+      activeAccountId = null;
+    }
+  } catch {
+    // Network error: fall back to cookie string comparison
+    const match = accounts.find((a) => a.cookie === cookie);
+    activeAccountId = match ? match.id : null;
+  }
 }
 
 // ── Render ────────────────────────────────────────
@@ -57,14 +110,24 @@ function render() {
         : initial;
       const enterClass = isInitialRender ? "entering" : "";
 
+      const invalidBadge = acc.isValid === false
+        ? `<span class="account-badge invalid" title="Session invalid — log in again to refresh">
+            <svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor">
+              <path d="M8 1a7 7 0 100 14A7 7 0 008 1zM0 8a8 8 0 1116 0A8 8 0 010 8z"/>
+              <path d="M7.002 11a1 1 0 112 0 1 1 0 01-2 0zM7.1 4.995a.905.905 0 111.8 0l-.35 3.507a.552.552 0 01-1.1 0L7.1 4.995z"/>
+            </svg>
+            Invalid</span>`
+        : "";
+
       return `
-      <div class="account-card ${isActive ? "active" : ""} ${enterClass}" data-id="${acc.id}" style="--i: ${i}">
+      <div class="account-card ${isActive ? "active" : ""} ${acc.isValid === false ? "invalid" : ""} ${enterClass}" data-id="${acc.id}" style="--i: ${i}">
         <div class="account-avatar">${avatarContent}</div>
         <div class="account-info">
           <div class="account-name">${esc(acc.username || "Unknown")}</div>
           <div class="account-display">${esc(acc.displayName ? `@${acc.displayName}` : "")}</div>
         </div>
         ${isActive ? '<span class="account-badge">Active</span>' : ""}
+        ${invalidBadge}
         <div class="account-actions">
           <button class="btn-icon btn-danger" data-action="delete" data-id="${acc.id}" title="Remove">
             <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
@@ -81,6 +144,7 @@ function render() {
 // ── Events ────────────────────────────────────────
 function bindEvents() {
   $("#addBtn").addEventListener("click", addCurrentAccount);
+  $("#logoutBtn").addEventListener("click", logoutCurrentAccount);
 
   $("#accountList").addEventListener("click", (e) => {
     const delBtn = e.target.closest("[data-action='delete']");
@@ -132,11 +196,6 @@ async function addCurrentAccount() {
       return;
     }
 
-    if (accounts.some((a) => a.cookie === cookie)) {
-      showToast("Account already saved", "error");
-      return;
-    }
-
     showToast("Grabbing account info\u2026", "success");
 
     const userResp = await fetch("https://users.roblox.com/v1/users/authenticated", {
@@ -146,6 +205,12 @@ async function addCurrentAccount() {
 
     if (!userData.name) {
       showToast("Could not resolve account", "error");
+      return;
+    }
+
+    // Check duplicate by userId (survives cookie rotation)
+    if (accounts.some((a) => a.userId === userData.id)) {
+      showToast("Account already saved", "error");
       return;
     }
 
@@ -227,6 +292,35 @@ async function switchAccount(id) {
     showToast("Failed to switch", "error");
     render();
   }
+}
+
+// ── Sign Out (removes cookie from browser, Roblox session stays valid) ───
+async function logoutCurrentAccount() {
+  const btn = $("#logoutBtn");
+  btn.disabled = true;
+
+  const { success } = await sendMessage({ action: "removeCookie" });
+  if (success) {
+    activeAccountId = null;
+    isLoggedIn = false;
+    render();
+    updateLogoutBtn();
+    showToast("Signed out", "success");
+
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (activeTab?.url?.includes("roblox.com")) {
+      chrome.tabs.reload(activeTab.id);
+    }
+  } else {
+    showToast("Sign out failed", "error");
+    btn.disabled = false;
+  }
+}
+
+function updateLogoutBtn() {
+  const btn = $("#logoutBtn");
+  if (!btn) return;
+  btn.disabled = !isLoggedIn;
 }
 
 // ── Delete Account ────────────────────────────────

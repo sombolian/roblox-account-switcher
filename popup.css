@@ -161,6 +161,52 @@ body {
 }
 
 
+/* ── Header Actions Group ────────────────────── */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+/* ── Sign Out Button ─────────────────────────── */
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px 7px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 550;
+  font-family: inherit;
+  transition: all 0.2s var(--ease-out);
+  user-select: none;
+}
+
+.btn-logout:hover {
+  background: var(--danger-soft);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: var(--danger);
+}
+
+.btn-logout:active {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
+}
+
+.btn-logout:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
 /* ── Add Button ──────────────────────────────── */
 
 .btn-add {
@@ -422,6 +468,33 @@ body {
   background: var(--success-soft);
   color: var(--success);
   flex-shrink: 0;
+}
+
+
+/* ── Invalid Session Badge ───────────────────────── */
+
+.account-badge.invalid {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(234, 179, 8, 0.12);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.account-card.invalid {
+  border-color: rgba(234, 179, 8, 0.1);
+}
+
+.account-card.invalid:hover {
+  border-color: rgba(234, 179, 8, 0.2);
 }
 
 
